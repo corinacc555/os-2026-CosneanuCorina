@@ -1,13 +1,16 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
-int
-main(int argc, char *argv[])
-{
-  if(argc != 2) {
-    fprintf(2, "usage: sleep <ticks>\n");
-    exit(1);
-  }
-  pause(atoi(argv[1])); // was sleep() before Aug 2025
-  exit(0);
+int main(int argc, char *argv[]) {
+    // Check if the user provided the exact number of arguments
+    if(argc != 2) {
+        fprintf(2, "Error: valid usage is sleep <ticks>\n");
+        exit(1);
+    }
+    
+    // Parse the input and pause execution
+    int wait_ticks = atoi(argv[1]);
+    pause(wait_ticks); // Replaced sleep() with pause() for the new xv6 version
+    
+    exit(0);
 }

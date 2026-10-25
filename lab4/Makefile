@@ -150,9 +150,12 @@ UPROGS=\
 	$U/_forphan\
 	$U/_dorphan\
 	$U/_sync\
+	$U/_mystat\
+	$U/_find\
+	$U/_run\
+	$U/_pingpong\
 	$U/_sleep\
-	$U/_args\
-
+	$U/_args
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
 
