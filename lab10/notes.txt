@@ -1,0 +1,14 @@
+Lab 10 - notes (Part 3)
+
+1. In "trace 32 grep hello README" only read is printed because 32 = 2^5, so only bit 5 is set,
+   and 5 is SYS_read. The bits for open (15) and close (21) are 0, so syscall() does not print them.
+
+2. In forkforkfork several pids print lines because of this line from Part 2.5 in fork():
+   np->trace_mask = p->trace_mask;
+   The child copies the mask of its parent, so every descendant also traces its own fork calls.
+
+3. echo calls write twice: once for "hi" (2 bytes) and once for the newline (1 byte).
+   The kernel prints the trace line after each call finishes, so the line "write -> 2" of the
+   first call appears right after "hi" and before the newline written by the second call.
+
+4. open (15) and close (21): 2^15 + 2^21 = 32768 + 2097152 = 2129920.
