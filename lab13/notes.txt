@@ -1,0 +1,24 @@
+Lab 13 - notes (Part 3)
+
+1. Without the lock the letters mix because one line is not one system call: mix prints
+   every letter with its own write(1, p, 1), so a line of 30 letters plus the newline costs
+   31 system calls. The two processes run at the same time on different CPUs, so the kernel
+   receives their one-letter writes interleaved and the letters appear mixed on the screen.
+
+2. The two lines sem_down(3) before the loop that prints the letters and sem_up(3) after it.
+   Semaphore 3 starts at 1 (sem_init(3, 1)), so only one process at a time can be between
+   them; the other one sleeps in sem_down until the whole line was written.
+
+3. Because wakeup(s) wakes up every process that sleeps on that semaphore, but sem_up added
+   only one unit. The first process that gets the spinlock again takes the unit (value goes
+   back to 0); a process that wakes up later, or a new process that called sem_down in
+   between, finds 0 again. With "while" it checks the value again and goes back to sleep;
+   with "if" it would continue and make the value negative, so two processes would pass
+   with only one unit.
+
+4. A spinlock does not put the waiting process to sleep: the other CPU spins in acquire()
+   with interrupts off. If the process slept while holding s->lock, nobody could ever take
+   that lock: sem_up needs the same lock to increase the value and to call wakeup, so it
+   would spin forever and the sleeper would never be woken up. The system would be stuck
+   (a deadlock), and that CPU would burn 100% in the spin loop. xv6 even checks this rule:
+   sched() panics with "sched locks" if a process goes to sleep holding a spinlock.
