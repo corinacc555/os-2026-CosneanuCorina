@@ -1,0 +1,23 @@
+Lab 18 - notes (Part 2)
+
+What exactly does thread_switch save and load?
+
+It saves and loads only the callee-saved registers of a thread: ra, sp and s0..s11
+(14 registers of 8 bytes, 112 bytes in total). First it stores the registers of the
+thread that is running into old (a0), at the offsets of struct context (ra at 0, sp at 8,
+s0 at 16, ... s11 at 104). Then it loads the same 14 registers of the next thread from
+new (a1). The other registers (a0-a7, t0-t6) are caller-saved: by the RISC-V calling
+convention the caller of thread_switch does not expect them to survive a function call,
+so the compiler has already saved what it needs on the thread's own stack. The program
+counter is not saved directly: ra plays its role. Because sp is swapped too, every thread
+continues on its own stack, with its own local variables.
+
+Why is ra the register that makes execution continue in the other thread?
+
+thread_switch ends with ret, and ret jumps to the address in ra. Before ret, ra was
+loaded from the next thread's context, so ret does not go back to the caller of the old
+thread but to the place where the next thread itself called thread_switch the last time
+(inside its thread_schedule), and that thread continues from there. For a new thread,
+thread_create put the address of the thread function in ctx.ra and the top of its stack
+in ctx.sp, so the first switch "returns" into the start of thread_a, thread_b or thread_c,
+on the thread's own stack.
